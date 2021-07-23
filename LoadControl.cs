@@ -44,7 +44,7 @@ namespace FlappyPaimon
 
 		const int UI_HEIGHT = 600;
 		int FileCount = 0;
-		int ResCount = 32;
+		int ResCount = 33;
 		string ErrCode = "";
 		int LoadStyle = 0;
 		protected override void OnPaint(PaintEventArgs e)
@@ -290,6 +290,7 @@ namespace FlappyPaimon
 			Resources.hit = System.IO.File.ReadAllBytes(resPath + "hit.mp3");
 			Resources.pass = System.IO.File.ReadAllBytes(resPath + "pass.mp3");
 			Resources.press = System.IO.File.ReadAllBytes(resPath + "press.mp3");
+			Resources.menu = Bitmap.FromFile(resPath + "menu.png") as Bitmap;
 		}
 
 		private void LoadControl_Click(object sender, EventArgs e)
@@ -305,7 +306,7 @@ namespace FlappyPaimon.Properties
 	public static partial class Resources
 	{
 		public static Bitmap bainianji,cloud,DisableSound,distance,forest,FPS,Fullscreen,GDI,ground,number,particle1,particle2,particle3,particle4,pDead,pFly,pNormal,SDX,slime0,slime1,slime2,Sound,stone,
-		title,tube_lower,tube_upper,yuanshi,yuanshi_smaller;
+		title,tube_lower,tube_upper,yuanshi,yuanshi_smaller,menu;
 		public static byte[] bgm, hit, pass, press;
 	}
 }

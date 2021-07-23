@@ -47,9 +47,11 @@
 			this.Load += new System.EventHandler(this.Form1_Load);
 			this.ResizeBegin += new System.EventHandler(this.Form1_ResizeBegin);
 			this.ResizeEnd += new System.EventHandler(this.Form1_ResizeEnd);
+			this.LocationChanged += new System.EventHandler(this.Form1_LocationChanged);
 			this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
-			this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.GameUI_MouseClick);
+			this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseDown);
 			this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.GameUI_MouseMove);
+			this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.GameUI_MouseClick);
 			this.ResumeLayout(false);
 
 		}

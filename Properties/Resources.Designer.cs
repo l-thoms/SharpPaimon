@@ -22,7 +22,7 @@ namespace FlappyPaimon.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-       public static partial class Resources {
+    public partial class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -72,8 +72,11 @@ namespace FlappyPaimon.Properties {
         ///   查找类似 &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
         ///&lt;resources&gt;
         ///    &lt;file name=&quot;title.png&quot; src=&quot;https://resource.evk6.cn/cloudPackage/424734696379777024/214101/h5/1.00.03/214101-1.00.03-h5/assets/images/417256283.png&quot;/&gt;
-        ///    &lt;file name=&quot;preserve1.png&quot; src=&quot;https://resource.evk6.cn/cloudPackage/424734696379777024/214101/h5/1.00.03/214101-1.00.03-h5/assets/images/330338828.png&quot;/&gt;&lt;!--bainianji--&gt;
-        ///    &lt;file name=&quot;cloud.png&quot; src=&quot;https://resource.evk6.cn/cloudPackage/424734696379777024/214101/h5/1.00.03/214101-1.00.03-h5/ [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        ///    &lt;array src=&quot;https://resource.evk6.cn/cloudPackage/424734696379777024/214101/h5/1.00.03/214101-1.00.03-h5/assets/images/1972943305.png&quot;&gt;
+        ///        &lt;crop rect=&quot;0 0 58 78&quot; name=&quot;pnormal.png&quot;/&gt;
+        ///        &lt;crop rect=&quot;59 0 58 78&quot; name=&quot;pdead.png&quot;/&gt;
+        ///    &lt;/array&gt;
+        ///    &lt;file name=&quot;preserve1.png&quot; src=&quot;https: [字符串的其余部分被截断]&quot;; 的本地化字符串。
         /// </summary>
         internal static string ResourceList {
             get {

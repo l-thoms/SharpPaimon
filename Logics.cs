@@ -17,7 +17,6 @@ namespace FlappyPaimon
 		string ResourcePath;
 		Stopwatch UIWatch = new Stopwatch(), EndWatch = new Stopwatch();
 		Control GameUI;
-		IntPtr GLContext;
 		[DllImport("user32.dll")]
 		public static extern IntPtr GetDC(IntPtr hwnd);
 		long GameTime;
@@ -57,7 +56,7 @@ namespace FlappyPaimon
 			RCThread = new System.Threading.Thread(new System.Threading.ThreadStart(CompatibleLoop));
 			UseCompatibleMode = false;
 		}
-		Timer t0 = new Timer() { Interval = 1 },t1 = new Timer() { Interval = 1 };
+		Timer t0 = new Timer() { Interval = 1 }, t1 = new Timer() { Interval = 1 };
 		void ReRest()
 		{
 			if (RestAni.Description == "up")
@@ -122,10 +121,14 @@ namespace FlappyPaimon
 
 		double PLocation = 50, PRotation = 0;
 
+		THAnimations.EasyAni GameAni;
+		THAnimations.EasyAni RotationAni;
 		Point MouseAbsolute = new Point();
 		Point ScreenAbsolute = new Point();
 		int EnterPosition = 0;
 		int TouchIndex = 0;
+		Point MenuPosition = new Point(-1, -1);
+		int MenuItemCount = 5,MenuIndex = -1;
 		private void GameUI_MouseMove(object sender, MouseEventArgs e)
 		{
 			MouseAbsolute = e.Location;
@@ -143,6 +146,13 @@ namespace FlappyPaimon
 					Press(sender, e);
 					TouchIndex = tempIndex;
 				}
+			}
+			MenuIndex = -1;
+			if (MouseRelative.X >= MenuPosition.X && MouseRelative.X <= MenuPosition.X + Properties.Resources.menu.Width &&
+			MouseRelative.Y >= MenuPosition.Y && MouseRelative.Y <= MenuPosition.Y + Properties.Resources.menu.Height)
+			{
+				MenuIndex = (int)((MouseRelative.Y - MenuPosition.Y) / (Properties.Resources.menu.Height / (float)MenuItemCount));
+				if (MenuIndex >= MenuItemCount) MenuIndex = -1;
 			}
 			ScreenAbsolute = MousePosition;
 		}
@@ -172,7 +182,7 @@ namespace FlappyPaimon
 					Tube tube = Tubes[i];
 					if (tube.animationX.GetValue() <= 104 && tube.animationX.GetValue() >= -104 && (tube.y - 10 > PLocation || tube.y + 10 < PLocation))
 					{
-						GameOver(); AniDown();
+						GameOver();AniDown();
 						break;
 					}
 					//pass
@@ -241,9 +251,22 @@ namespace FlappyPaimon
 		{
 			if (e.Button == MouseButtons.Right)
 			{
-				UseCompatibleMode = !UseCompatibleMode;
+				int _menuRight = MouseRelative.X + Properties.Resources.menu.Width;
+				int _menuBottom = MouseRelative.Y + Properties.Resources.menu.Height;
+				MenuPosition = new Point(_menuRight > UI_WIDTH ? UI_WIDTH - Properties.Resources.menu.Width : MouseRelative.X,
+				_menuBottom > UI_HEIGHT ? UI_HEIGHT - Properties.Resources.menu.Height : MouseRelative.Y);
+				if (MenuPosition.X < 0) MenuPosition = new Point(0, MenuPosition.Y);
+				if (MenuPosition.Y < 0) MenuPosition = new Point(MenuPosition.X, 0);
 				return;
 			}
+			if (e.Button == MouseButtons.Left && MenuPosition.X > -1 && MenuPosition.Y > -1)
+			{
+				if (MouseRelative.X >= MenuPosition.X && MouseRelative.X <= MenuPosition.X + Properties.Resources.menu.Width &&
+				MouseRelative.Y >= MenuPosition.Y && MouseRelative.Y <= MenuPosition.Y + Properties.Resources.menu.Height) { ClickMenu(); return; }
+				else { CloseMenu(); return; }
+			}
+			if (e.Button == MouseButtons.Middle) CloseMenu();
+
 			if (playState == 0)
 			{
 				if (IsFSMouseOver)
@@ -273,12 +296,23 @@ namespace FlappyPaimon
 					return;
 				}
 			}
+			if(TouchIndex==0)
 			Press(sender, e);
-			if (CanSetTouch)
+		}
+		void ClickMenu()
+		{
+			switch(MenuIndex)
 			{
-				TouchIndex = 0;
-				EnterPosition = ScreenRelative.Y;
+				case 0:UseCompatibleMode = !UseCompatibleMode ; break;
+				case 1:ShowFPS = !ShowFPS;break;
+				case 2:PerfMod = !PerfMod;break;
+				case 3:Form1_KeyDown(this, new KeyEventArgs(Keys.F12));break;
 			}
+			CloseMenu();
+		}
+		void CloseMenu()
+		{
+			MenuPosition = new Point(-1, -1);
 		}
 		private void Press(object sender, EventArgs e)
 		{
@@ -386,6 +420,18 @@ namespace FlappyPaimon
 		}
 		private void Form1_KeyDown(object sender, KeyEventArgs e)
 		{
+			if (e.KeyCode == Keys.Apps && (MenuPosition.X < 0 || MenuPosition.Y < 0))
+			{
+				MenuPosition = new Point(0, 0);return;
+			}
+			if (MenuPosition.X >= 0 && MenuPosition.Y >= 0)
+			{
+				if (e.KeyCode == Keys.Down) { MenuIndex = MenuIndex > MenuItemCount - 2 ? 0 : MenuIndex + 1; return; }
+				else if (e.KeyCode == Keys.Up) { MenuIndex = MenuIndex < 1 ? MenuItemCount - 1 : MenuIndex - 1; return; }
+				else if(e.KeyCode == Keys.Escape){ CloseMenu();return; }
+				else if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Space) { ClickMenu(); return; }
+				else{ CloseMenu();return; }
+			}
 			if (e.KeyCode == Keys.F5) { PerfMod = !PerfMod; return; }
 			if (e.KeyCode == Keys.F11) { FullScreen(); return; }
 			if (e.KeyCode == Keys.F12) { System.Diagnostics.Process.Start("https://g.evkgame.cn/214101"); return; }
@@ -411,7 +457,7 @@ namespace FlappyPaimon
 			this.Controls.Add(loadControl);
 			loadControl.Dock = DockStyle.Fill;
 			loadControl.Failed = (object o, EventArgs a) => { };
-			loadControl.Completed = (object o, EventArgs a) => { playState = 0; loadControl.LoadResources(); InitGame(); this.Controls.Remove(loadControl); loadControl.Dispose(); };
+			loadControl.Completed = (object o, EventArgs a) => { playState = 0; loadControl.LoadResources(); InitGame(); this.Controls.Remove(loadControl); loadControl.Dispose();};
 			this.MinimumSize = new Size(this.Width - this.ClientSize.Width + Convert.ToInt32(320 * DPI), this.Height - this.ClientSize.Height + Convert.ToInt32(240 * DPI));
 			this.Left = (SystemInformation.WorkingArea.Width - this.Width) / 2;
 			this.Top = (SystemInformation.WorkingArea.Height - this.Height) / 2;
@@ -439,6 +485,21 @@ namespace FlappyPaimon
 		}
 		List<Slime> Slimes = new List<Slime>();
 		List<Tube> Tubes = new List<Tube>();
+
+		private void Form1_LocationChanged(object sender, EventArgs e)
+		{
+			CloseMenu();
+		}
+
+		private void Form1_MouseDown(object sender, MouseEventArgs e)
+		{
+			if (CanSetTouch)
+			{
+				TouchIndex = 0;
+				EnterPosition = ScreenRelative.Y;
+			}
+		}
+
 		List<Yuanshi> Yuanshis = new List<Yuanshi>();
 		void AddObstacle()
 		{

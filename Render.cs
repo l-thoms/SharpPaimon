@@ -18,7 +18,7 @@ namespace FlappyPaimon
 	{
 
 		SharpDX.Direct2D1.Bitmap CloudBitmap, StoneBitmap, GroundBitmap, ForestBitmap, PNormal, PFly, TitleBitmap, PDead, TubeUpper, TubeLower, Slime0, Slime1, Slime2, YSBitmap,
-		One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Zero, FSBitmap, Sound, DisableSound, SDX, FPS, GDI;
+		One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Zero, FSBitmap, Sound, DisableSound, SDX, FPS, GDI,Menu;
 		System.Drawing.Bitmap GZero, GOne, GTwo, GThree, GFour, GFive, GSix, GSeven, GEight, GNine;
 		void LoadImage()
 		{
@@ -37,6 +37,7 @@ namespace FlappyPaimon
 			Slime1 = ConvertBitmap(Properties.Resources.slime1);
 			Slime2 = ConvertBitmap(Properties.Resources.slime2);
 			YSBitmap = ConvertBitmap(Properties.Resources.yuanshi_smaller);
+			Menu = ConvertBitmap(Properties.Resources.menu);
 			List<System.Drawing.Bitmap> numberList = new System.Collections.Generic.List<System.Drawing.Bitmap>();
 			for (int i = 0; i < 2; i++)
 			{
@@ -147,8 +148,11 @@ namespace FlappyPaimon
 				return Convert.ToInt32(input) / 2 * 2;
 			return input;
 		}
+		long MaxFrames = 0;
 		public void RenderSDX()
 		{
+			if (EndWatch.ElapsedMilliseconds + UIWatch.ElapsedMilliseconds == MaxFrames) return;
+			MaxFrames = EndWatch.ElapsedMilliseconds + UIWatch.ElapsedMilliseconds;
 			if (playState == -1) return;
 			#region Direct2D
 			GameUI.BackgroundImage = null;
@@ -163,18 +167,18 @@ namespace FlappyPaimon
 			RenderTarget.FillRectangle(new RawRectangleF(0, 0, UI_WIDTH, UI_HEIGHT), new SolidColorBrush(RenderTarget, ConvertColor(Color.FromArgb(97, 224, 255))));//Draw BackColor
 
 			//Draw Background
-			int cloudComp = -BG_WIDTH;
+			int cloudComp = -2*BG_WIDTH;
 			while (cloudComp < UI_WIDTH)
 			{
 				cloudComp += BG_WIDTH;
-				RenderTarget.DrawBitmap(CloudBitmap, RelRectangleF(-UIWatch.ElapsedMilliseconds / 20 % BG_WIDTH + cloudComp, UI_HEIGHT - MAP_HEIGHT, BG_WIDTH, BG_WIDTH * CloudBitmap.PixelSize.Height / (float)CloudBitmap.PixelSize.Width), 1, BitmapInterpolationMode.NearestNeighbor);
+				RenderTarget.DrawBitmap(CloudBitmap, RelRectangleF(-UIWatch.ElapsedMilliseconds / 20 % BG_WIDTH + cloudComp+UI_WIDTH/2, UI_HEIGHT - MAP_HEIGHT, BG_WIDTH, BG_WIDTH * CloudBitmap.PixelSize.Height / (float)CloudBitmap.PixelSize.Width), 1, BitmapInterpolationMode.NearestNeighbor);
 			}
 
-			int forestComp = -FOREST_WIDTH;
+			int forestComp = -2*FOREST_WIDTH;
 			while (forestComp < UI_WIDTH)
 			{
 				forestComp += FOREST_WIDTH;
-				RenderTarget.DrawBitmap(ForestBitmap, RelRectangleF(Fit(-UIWatch.ElapsedMilliseconds / 10 % FOREST_WIDTH + forestComp), UI_HEIGHT - MAP_HEIGHT, FOREST_WIDTH, FOREST_WIDTH * ForestBitmap.PixelSize.Height / (float)ForestBitmap.PixelSize.Width), 1, BitmapInterpolationMode.NearestNeighbor);
+				RenderTarget.DrawBitmap(ForestBitmap, RelRectangleF(Fit(-UIWatch.ElapsedMilliseconds / 10 % FOREST_WIDTH + forestComp + UI_WIDTH / 2), UI_HEIGHT - MAP_HEIGHT, FOREST_WIDTH, FOREST_WIDTH * ForestBitmap.PixelSize.Height / (float)ForestBitmap.PixelSize.Width), 1, BitmapInterpolationMode.NearestNeighbor);
 			}
 			//Draw Obstacle
 			foreach (var tubes in Tubes)
@@ -210,11 +214,11 @@ namespace FlappyPaimon
 				SCurrent.PixelSize.Width, SCurrent.PixelSize.Height), 1, BitmapInterpolationMode.NearestNeighbor);
 			}
 			//Draw Stone
-			int bgComp = -BG_WIDTH;
+			int bgComp = -2*BG_WIDTH;
 			while (bgComp < UI_WIDTH)
 			{
 				bgComp += BG_WIDTH;
-				RenderTarget.DrawBitmap(StoneBitmap, RelRectangleF(-UIWatch.ElapsedMilliseconds / 5 % BG_WIDTH + bgComp, UI_HEIGHT - MAP_HEIGHT, BG_WIDTH, BG_WIDTH * StoneBitmap.PixelSize.Height / (float)StoneBitmap.PixelSize.Width), 1, BitmapInterpolationMode.NearestNeighbor);
+				RenderTarget.DrawBitmap(StoneBitmap, RelRectangleF(-UIWatch.ElapsedMilliseconds / 5 % BG_WIDTH + bgComp + UI_WIDTH / 2, UI_HEIGHT - MAP_HEIGHT, BG_WIDTH, BG_WIDTH * StoneBitmap.PixelSize.Height / (float)StoneBitmap.PixelSize.Width), 1, BitmapInterpolationMode.NearestNeighbor);
 
 			}
 			//Draw Paimon
@@ -225,7 +229,7 @@ namespace FlappyPaimon
 				PCurrent = PFly;
 			if (playState == 0)
 			{
-				RenderTarget.DrawBitmap(PCurrent, RelRectangleF((UI_WIDTH - PCurrent.PixelSize.Width) / 2,
+				RenderTarget.DrawBitmap(PCurrent, RelRectangleF(Fit((UI_WIDTH - PCurrent.PixelSize.Width) / 2),
 				Fit((float)((UI_HEIGHT - PCurrent.PixelSize.Height) / 2 * (GROUND_LOCATION / (float)MAP_HEIGHT) + RestAni.GetValue() + TOP_0))
 				, PCurrent.PixelSize.Width, PCurrent.PixelSize.Height), 1, BitmapInterpolationMode.NearestNeighbor);
 			}
@@ -257,11 +261,11 @@ namespace FlappyPaimon
 			}
 
 			//Draw Ground
-			bgComp = -BG_WIDTH;
+			bgComp = -2*BG_WIDTH;
 			while (bgComp < UI_WIDTH)
 			{
 				bgComp += BG_WIDTH;
-				RenderTarget.DrawBitmap(GroundBitmap, RelRectangleF(Fit(-UIWatch.ElapsedMilliseconds / 5 % BG_WIDTH + bgComp), UI_HEIGHT - MAP_HEIGHT, BG_WIDTH, BG_WIDTH * GroundBitmap.PixelSize.Height / (float)GroundBitmap.PixelSize.Width), 1, BitmapInterpolationMode.NearestNeighbor);
+				RenderTarget.DrawBitmap(GroundBitmap, RelRectangleF(Fit(-UIWatch.ElapsedMilliseconds / 5 % BG_WIDTH + bgComp + UI_WIDTH / 2), UI_HEIGHT - MAP_HEIGHT, BG_WIDTH, BG_WIDTH * GroundBitmap.PixelSize.Height / (float)GroundBitmap.PixelSize.Width), 1, BitmapInterpolationMode.NearestNeighbor);
 
 			}
 			//Draw Title
@@ -315,6 +319,7 @@ namespace FlappyPaimon
 				else
 					RenderTarget.DrawBitmap(DisableSound, RelRectangleF(UI_WIDTH - 48 - 54 - 6, 6 * GetEnterAni(), 48, 48), 1, BitmapInterpolationMode.NearestNeighbor);
 			}
+			//Show FPS
 			if (ShowFPS)
 			{
 				RenderTarget.DrawBitmap(SDX, RelRectangleF(UI_WIDTH - SDX.PixelSize.Width - 4, UI_HEIGHT - SDX.PixelSize.Height - 4, SDX.PixelSize.Width, SDX.PixelSize.Height), 1,
@@ -345,6 +350,14 @@ namespace FlappyPaimon
 					RenderTarget.DrawBitmap(fNumBitmap, RelRectangleF(4 + FPS.PixelSize.Width + 2 + (fDigits - i) * fNumBitmap.PixelSize.Width, UI_HEIGHT - fNumBitmap.PixelSize.Height - 6, numWidth, numHeight), 1, BitmapInterpolationMode.NearestNeighbor);
 				}
 			}
+			//Draw Menu
+			if(MenuPosition.X>-1&&MenuPosition.Y>-1)
+			{
+				if (MenuIndex != -1)
+					RenderTarget.FillRectangle(RelRectangleF(Fit(MenuPosition.X), Fit(MenuPosition.Y+Menu.PixelSize.Height/MenuItemCount*MenuIndex), Fit(Menu.PixelSize.Width), Fit(Menu.PixelSize.Height / (float)MenuItemCount)), 
+					new SharpDX.Direct2D1.SolidColorBrush(RenderTarget, new RawColor4(0, 0, 0, 1)));
+				RenderTarget.DrawBitmap(Menu, RelRectangleF(Fit(MenuPosition.X), Fit(MenuPosition.Y), Menu.PixelSize.Width, Menu.PixelSize.Height), 1, BitmapInterpolationMode.NearestNeighbor);
+			}
 			RenderTarget.EndDraw();
 			TmpFps++;
 			#endregion
@@ -354,6 +367,7 @@ namespace FlappyPaimon
 		private void Form1_ResizeBegin(object sender, EventArgs e)
 		{
 			if (playState != -1) t1.Start();
+			CloseMenu();
 		}
 
 		private void Form1_ResizeEnd(object sender, EventArgs e)
@@ -393,18 +407,18 @@ namespace FlappyPaimon
 			bGraphics.ScaleTransform(din, din);
 			bGraphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
 			//Draw Background
-			int cloudComp = -BG_WIDTH;
+			int cloudComp = -2*BG_WIDTH;
 			while (cloudComp < UI_WIDTH)
 			{
 				cloudComp += BG_WIDTH;
-				bGraphics.DrawImage(Properties.Resources.cloud, -UIWatch.ElapsedMilliseconds / 20 % BG_WIDTH + cloudComp, UI_HEIGHT - MAP_HEIGHT, BG_WIDTH, BG_WIDTH * CloudBitmap.Size.Height / CloudBitmap.Size.Width);
+				bGraphics.DrawImage(Properties.Resources.cloud, -UIWatch.ElapsedMilliseconds / 20 % BG_WIDTH + cloudComp+UI_WIDTH/2, UI_HEIGHT - MAP_HEIGHT, BG_WIDTH, BG_WIDTH * CloudBitmap.Size.Height / CloudBitmap.Size.Width);
 			}
 
-			int forestComp = -FOREST_WIDTH;
+			int forestComp = -2*FOREST_WIDTH;
 			while (forestComp < UI_WIDTH)
 			{
 				forestComp += FOREST_WIDTH;
-				bGraphics.DrawImage(Properties.Resources.forest, -UIWatch.ElapsedMilliseconds / 10 % FOREST_WIDTH + forestComp, UI_HEIGHT - MAP_HEIGHT, FOREST_WIDTH, FOREST_WIDTH * ForestBitmap.Size.Height / ForestBitmap.Size.Width);
+				bGraphics.DrawImage(Properties.Resources.forest, -UIWatch.ElapsedMilliseconds / 10 % FOREST_WIDTH + forestComp+UI_WIDTH/2, UI_HEIGHT - MAP_HEIGHT, FOREST_WIDTH, FOREST_WIDTH * ForestBitmap.Size.Height / ForestBitmap.Size.Width);
 			}
 			//Draw Obstacle
 			for (int i = 0; i < Tubes.Count; i++)
@@ -445,11 +459,11 @@ namespace FlappyPaimon
 				SCurrent.Size.Width, SCurrent.Size.Height);
 			}
 			//Draw Stone
-			int bgComp = -BG_WIDTH;
+			int bgComp = -BG_WIDTH*2;
 			while (bgComp < UI_WIDTH)
 			{
 				bgComp += BG_WIDTH;
-				bGraphics.DrawImage(Properties.Resources.stone, -UIWatch.ElapsedMilliseconds / 5 % BG_WIDTH + bgComp, UI_HEIGHT - MAP_HEIGHT, BG_WIDTH, BG_WIDTH * StoneBitmap.Size.Height / StoneBitmap.Size.Width);
+				bGraphics.DrawImage(Properties.Resources.stone, -UIWatch.ElapsedMilliseconds / 5 % BG_WIDTH + bgComp+UI_WIDTH/2, UI_HEIGHT - MAP_HEIGHT, BG_WIDTH, BG_WIDTH * StoneBitmap.Size.Height / StoneBitmap.Size.Width);
 			}
 			//Draw Paimon
 			System.Drawing.Bitmap PCurrent = Properties.Resources.pNormal;
@@ -491,11 +505,11 @@ namespace FlappyPaimon
 				bGraphics.ScaleTransform(din, din);
 			}
 			//Draw Ground
-			bgComp = -BG_WIDTH;
+			bgComp = -BG_WIDTH*2;
 			while (bgComp < UI_WIDTH)
 			{
 				bgComp += BG_WIDTH;
-				bGraphics.DrawImage(Properties.Resources.ground, -UIWatch.ElapsedMilliseconds / 5 % BG_WIDTH + bgComp, UI_HEIGHT - MAP_HEIGHT, BG_WIDTH, BG_WIDTH * GroundBitmap.Size.Height / GroundBitmap.Size.Width);
+				bGraphics.DrawImage(Properties.Resources.ground, -UIWatch.ElapsedMilliseconds / 5 % BG_WIDTH + bgComp+UI_WIDTH/2, UI_HEIGHT - MAP_HEIGHT, BG_WIDTH, BG_WIDTH * GroundBitmap.Size.Height / GroundBitmap.Size.Width);
 
 			}
 			//Draw Title
@@ -579,6 +593,17 @@ namespace FlappyPaimon
 					bGraphics.DrawImage(fNumBitmap, new Rectangle(4 + FPS.PixelSize.Width + 2 + (fDigits - i) * fNumBitmap.Width, UI_HEIGHT - fNumBitmap.Height - 6, numWidth, numHeight));
 				}
 			}
+			//Draw Menu
+			if (MenuPosition.X > -1 && MenuPosition.Y > -1)
+			{
+				if (MenuIndex != -1)
+					//RenderTarget.FillRectangle(RelRectangleF(Fit(MenuPosition.X), Fit(MenuPosition.Y + Menu.PixelSize.Height / 4 * MenuIndex), Fit(Menu.PixelSize.Width), Fit(Menu.PixelSize.Height / (float)MenuItemCount)),
+					//new SharpDX.Direct2D1.SolidColorBrush(RenderTarget, new RawColor4(0, 0, 0, 1)));
+					bGraphics.FillRectangle(Brushes.Black, new Rectangle(MenuPosition.X, Convert.ToInt32(MenuPosition.Y + Properties.Resources.menu.Height / MenuItemCount * MenuIndex),
+					Properties.Resources.menu.Width, Properties.Resources.menu.Height / MenuItemCount));
+				//RenderTarget.DrawBitmap(Menu, RelRectangleF(Fit(MenuPosition.X), Fit(MenuPosition.Y), Menu.PixelSize.Width, Menu.PixelSize.Height), 1, BitmapInterpolationMode.NearestNeighbor);
+				bGraphics.DrawImage(Properties.Resources.menu, MenuPosition.X,MenuPosition.Y, Properties.Resources.menu.Width, Properties.Resources.menu.Height);
+			}
 			if (PerfMod) g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
 			g.DrawImage(renderBitmap, 0, 0, ClientSize.Width, ClientSize.Height);
 			bGraphics.Dispose();
@@ -643,8 +668,6 @@ namespace FlappyPaimon
 				this.MinimumSize = new Size(this.Width - this.ClientSize.Width + Convert.ToInt32(320 * DPI), this.Height - this.ClientSize.Height + Convert.ToInt32(240 * DPI));
 			}
 		}
-		THAnimations.EasyAni GameAni;
-		THAnimations.EasyAni RotationAni;
 		WindowRenderTarget RenderTarget;
 		RawColor4 ConvertColor(Color source)
 		{
