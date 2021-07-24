@@ -301,12 +301,12 @@ namespace FlappyPaimon
 		}
 		void ClickMenu()
 		{
-			switch(MenuIndex)
+			switch (MenuIndex)
 			{
-				case 0:UseCompatibleMode = !UseCompatibleMode ; break;
-				case 1:ShowFPS = !ShowFPS;break;
-				case 2:PerfMod = !PerfMod;break;
-				case 3:Form1_KeyDown(this, new KeyEventArgs(Keys.F12));break;
+				case 0: UseCompatibleMode = !UseCompatibleMode; break;
+				case 1: ShowFPS = !ShowFPS; break;
+				case 2: PerfMod = !PerfMod; break;
+				case 3: System.Diagnostics.Process.Start("https://g.evkgame.cn/214101"); return;
 			}
 			CloseMenu();
 		}
